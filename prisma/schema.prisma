@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int     @id @default(autoincrement())
+  email       String  @db.VarChar(100)
+  name        String  @db.VarChar(100)
+  password    String  @db.VarChar(100)
+  role        String?  @db.VarChar(100)
+  histories   Json?
+  refresh_token       String? @db.Text
+  rent_number Int @default(0)
+
+  units Rental[]
+  @@map("users")
+}
+
+model Unit {
+  id    Int                 @id @default(autoincrement())
+  name  String              @db.VarChar(100)
+  categories Json
+  price Int
+  multiple_by Int?
+
+  users Rental[]
+  @@map("units")
+}
+
+model Rental {
+  id              Int       @id @default(autoincrement())
+  user            User      @relation(fields: [userId], references: [id])
+  userId          Int
+  unit            Unit      @relation(fields: [unitId], references: [id])
+  unitId          Int
+  rent_start       DateTime  @default(now())
+  rent_end         DateTime?  // null until the unit is returned
+  due_date         DateTime  // DateTime when the unit is expected to be returned
+  fine_per_day      Int       @default(50000) // You can set a default fine per day
+  total_fine       Int?      // This field will store the total fine if the user is late
+  
+  @@map("rentals")
+}
