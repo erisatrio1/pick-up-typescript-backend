@@ -24,6 +24,9 @@ apiRouter.get("/api/units/search", UnitController.search);
 apiRouter.post("/api/rentals/:unitId", RentalController.create);
 
 apiRouter.use(asyncMiddleware(roleMiddleware));
+
+apiRouter.get("/api/users", UserController.getAll);
+
 apiRouter.get("/api/rentals", RentalController.getAll);
 apiRouter.put("/api/rentals/:rentId(\\d+)", RentalController.update);
 apiRouter.delete("/api/rentals/:rentId(\\d+)", RentalController.remove);

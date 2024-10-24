@@ -6,6 +6,7 @@ import { ResponseError } from '../error/response-error';
 import { prismaClient } from '../application/database';
 import jwt from 'jsonwebtoken'; 
 import { env } from '../config/config'
+import { User } from '@prisma/client';
 
 export class UserService {
     
@@ -55,7 +56,7 @@ export class UserService {
         const role = user.role;
 
         const accessToken = jwt.sign({ name, email, role }, env.ACCESS_TOKEN_SECRET,{
-            expiresIn: '20s'
+            expiresIn: '15s'
         });
         const refreshToken = jwt.sign({ name, email, role }, env.REFRESH_TOKEN_SECRET,{
             expiresIn: '1d'
@@ -90,6 +91,17 @@ export class UserService {
         }
 
         return toUserResponse(user);
+    }
+
+    static async getAll(): Promise<UserResponse[]> {
+
+        let user = await prismaClient.user.findMany({});
+
+        if (!user) {
+            throw new ResponseError(401, "Email or password is wrong");
+        }
+
+        return user;
     }
 
     static async updateRent(id: number, forUse: string ): Promise<UserResponse> {

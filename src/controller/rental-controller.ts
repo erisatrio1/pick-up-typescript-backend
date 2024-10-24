@@ -54,7 +54,7 @@ export class RentalController {
             const rentId = Number(req.params.rentId)
             const rental = await RentalService.get(rentId)
             const now = new Date();
-            const lateDays = Math.max(0, Math.ceil((now.getTime() - rental.due_date.getTime()) / (1000 * 60 * 60 * 24))); // Calculate how many days late
+            const lateDays = Math.max(0, Math.ceil((now.getTime() - rental.due_date.getTime()) / (1000 * 60 * 60 * 24))); 
             const totalFine = lateDays * rental.fine_per_day;
 
             const user = await RentalService.get(rentId);

@@ -20,6 +20,7 @@ export const authMiddleware = async (req: UserRequest, res: Response, next: Next
             if(err) return res.sendStatus(403).end();
     
             if (decoded && typeof decoded === 'object' && 'email' in decoded) {
+                res.header('Access-Control-Allow-Credentials', 'true');
                 req.email = (decoded as { email: string }).email;
                 
                 next();

@@ -22,18 +22,35 @@ export class UserController {
         try {
             const request: LoginUserRequest = req.body as LoginUserRequest;
             const response = await UserService.login(request);
-
+            console.log("Setting cookie:", response.refresh_token);
+            
             res.cookie('refresh_token', response.refresh_token, {
                 httpOnly: true,
-                maxAge: 24 * 60 * 60 * 1000
+                maxAge: 24 * 60 * 60 * 1000,
+                secure: false,
+                sameSite: 'none'
             })
-
+            console.log('Cookies setelah diatur:', req.cookies);
+            
             res.status(200).json({
                 success: true,
-                access_token: response.access_token
+                access_token: response.access_token,
+                refresh_token: response.refresh_token
             })
         } catch (error) {
             next(error);
+        }
+    }
+
+    static async getAll(req: Request, res: Response, next: NextFunction) {
+        try {
+            const response = await UserService.getAll();
+            logger.debug("response : " + JSON.stringify(response));
+            res.status(200).json({
+                data: response
+            });
+        } catch (e) {
+            next(e);
         }
     }
 
@@ -48,9 +65,23 @@ export class UserController {
         }
     }
 
+    static async me(req: UserRequest, res: Response, next: NextFunction) {
+        try {
+            const response = await UserService.get(req.email!);
+            res.status(200).json({
+                data: response
+            })
+        } catch (e) {
+            next(e);
+        }
+    }
+
     static async refreshToken(req: Request, res: Response, next: NextFunction) {
         try {
+            console.log('Cookies:', req);
             const refreshToken = req.cookies.refresh_token; 
+            console.log('refresh adalah :', refreshToken);
+            
             
             const response = await UserService.refreshToken(refreshToken);
 
